@@ -1,0 +1,120 @@
+:javascript
+
+%img#image1{style: 'display: inline-block;' }
+%img#image2{style: 'display: inline-block;'}
+%a#what{style: 'width: 100px; height: 100px; display: block;', target: '_blank'}
+%canvas#canvas1{style: 'width: 400px; height: 400px; float: right; border: 1px solid #000000;'}
+%canvas#canvas2
+:javascript
+
+  function drawImage(opts) {
+
+    if(!opts.canvas) {
+      throw("A canvas is required");
+    }
+    if(!opts.image) {
+      throw("Image is required");
+    }
+
+    // get the canvas and context
+    var canvas = opts.canvas,
+      context = canvas.getContext('2d'),
+      image = opts.image,
+      override = opts.override,
+
+    // now default all the dimension info
+          srcx = opts.srcx || 0,
+          srcy = opts.srcy || 0,
+          srcw = opts.srcw || canvas.width,
+          srch = opts.srch || canvas.height,
+          desx = opts.desx || srcx,
+          desy = opts.desy || srcy,
+          desw = opts.desw || srcw,
+          desh = opts.desh || srch,
+          auto = opts.auto,
+
+    // finally query the various pixel ratios
+          devicePixelRatio = window.devicePixelRatio || 1,
+          backingStoreRatio = context.webkitBackingStorePixelRatio ||
+                              context.mozBackingStorePixelRatio ||
+                              context.msBackingStorePixelRatio ||
+                              context.oBackingStorePixelRatio ||
+                              context.backingStorePixelRatio || 1,
+
+          ratio = devicePixelRatio / backingStoreRatio;
+
+    // ensure we have a value set for auto.
+    // If auto is set to false then we
+    // will simply not upscale the canvas
+    // and the default behaviour will be maintained
+    if (typeof auto === 'undefined') {
+      auto = true;
+    }
+    // context.globalAlpha = 0.5;
+    context.globalCompositeOperation = "multiply";
+
+    // upscale the canvas if the two ratios don't match
+    if (auto && devicePixelRatio !== backingStoreRatio) {
+
+      var oldWidth = canvas.width;
+      var oldHeight = canvas.height;
+      if (override == true) {
+        canvas.width = oldWidth * ratio;
+        canvas.height = oldHeight * ratio;
+      }
+
+      canvas.style.width = oldWidth + 'px';
+      canvas.style.height = oldHeight + 'px';
+
+      // now scale the context to counter
+      // the fact that we've manually scaled
+      // our canvas element
+      // context.scale(ratio, ratio);
+
+    }
+    // console.log(canvas.toDataURL());
+    context.drawImage(image, srcx, srcy, srcw, srch, desx, desy, desw, desh);
+    return canvas;
+  }
+
+  var canvas1 = document.getElementById("canvas1");
+  var context = canvas1.getContext("2d");
+  var canvas2 = document.getElementById("canvas2");
+  var canvas3 = document.createElement('canvas');
+  canvas3.width = 400;
+  canvas3.height = 400;
+  var context3 = canvas3.getContext('2d');
+  var img1 = document.getElementById("image1");
+  var img2 = document.getElementById("image2");
+
+
+  var url2;
+  var c
+  $('document').ready(function() {
+      img1.crossOrigin = '';
+      img2.crossOrigin = '';
+      img1.src = 'https://s3.amazonaws.com/benh-fifty3-test/benh_pdf_filters.png';
+      img2.src = 'https://s3.amazonaws.com/benh-fifty3-test/shell_logo_for_emails.png';
+    img1.onload = function() {
+      c = drawImage({canvas: canvas1, image: img1});
+      // var url = c.toDataURL("image/png");
+      // console.log(url);
+    //   context.drawImage(img1, 0, 0, canvas1.width, canvas1.height);
+    //   url = canvas2.toDataURL("image/png"); // Read succeeds, canvas won't be dirty.
+    //   console.log(url);
+
+    }
+    // setTimeout(function() {
+    img2.onload = function() {
+      var c2 = drawImage({canvas: canvas1, image: img2});
+
+      };
+
+      setTimeout(function() {
+      var c2 = drawImage({canvas: canvas1, image: canvas3});
+
+      }, 301);
+
+  });
+ // TODO SET ANCHOR HREF AND TARGET BLANK TO THE DATA URL FOR THE IMAGES OF CANVAS1
+
